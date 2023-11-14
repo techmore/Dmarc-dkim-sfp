@@ -120,3 +120,41 @@ The Wyndcroft School
 Wyoming Seminary
 York Country Day School
 YSC Academy
+
+#!/bin/bash
+
+# https://knowledge.ondmarc.redsift.com/en/articles/1519838-looking-up-spf-dkim-and-dmarc-records-in-dns
+
+# Output file
+output_file="dns_results.txt"
+
+# List of domains to query
+domains=("bfs.org" "rivervalleyschool.org" "princetonfriendsschool.org")
+
+# Clear the output file
+echo -e "Domain\tSPF\tDKIM\tDMARC" > "$output_file"
+
+for DOMAIN in "${domains[@]}"
+do
+    # SPF Record
+    SPF=$(dig txt $DOMAIN +short | grep -q spf && echo "true" || echo "false")
+
+    # DKIM Record for Google
+    DKIM=$(dig txt google._domainkey.$DOMAIN +short | grep -q google && echo "true" || echo "false")
+
+    # DMARC Record
+    DMARC=$(dig txt _dmarc.$DOMAIN +short | grep -q dmarc && echo "true" || echo "false")
+
+    # Display in terminal
+    echo -e "Domain: $DOMAIN\tSPF: $SPF\tDKIM: $DKIM\tDMARC: $DMARC"
+
+    # Append to output file
+    echo -e "$DOMAIN\t$SPF\t$DKIM\t$DMARC" >> "$output_file"
+
+    echo "------------------------"
+done
+
+echo "Results are saved in $output_file"
+
+
+
